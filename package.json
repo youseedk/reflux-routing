@@ -1,6 +1,6 @@
 {
   "name": "reflux-routing",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/main.js",
   "scripts": {
@@ -8,6 +8,10 @@
     "build": "babel lib -d dist",
     "build-dev": "watchify lib/dev.js -o test/bundle.js -t [ babelify ]",
     "build-x": "watchify lib/x.js -o test/x.js -t [ babelify ]"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/youseedk/reflux-routing.git"
   },
   "author": "Yousee",
   "license": "ISC",
