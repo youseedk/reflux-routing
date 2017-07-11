@@ -1,5 +1,10 @@
 language: node_js
 node_js:
-  - "6"
+- '6'
 script:
-  - npm run build
+- npm run build
+deploy:
+  provider: npm
+  email: moj@tdc.dk
+  api_key: 
+    secure: enqlCdajuJ4axWsl1xtm7JT0D0agTVlLRc72DVDfOiQc2VN8DuZoRCIIS5zhlVYUvQXgqnM60IIOHaILsMyCGWa3B7EX1kDgCHecGpc8aEA0X7m5UQqyb45Q072v1vJX05KmKZtBH0KNroqlJKDbyUZwBiN4BDaGzKwb4JwKYGLgr8Uegn6dFcyP9P2jPkdqGLhxZaw0d4XUgfXF3bEwJEB0WraDF/pqZL7d83NBqQm7r4H/PwQ9KKo4HrEeX3UyiEz0pv3oixm8JVGIc5jgekryPhHJRVjF530QFLGSlXg1rE9Fh/Ve4GrQKS6F1ihw/CN4ozeqdBJDt+lmM2oglrOI4xNhTpw6+4ole0BJQwVL7FRrdKAbMkSevCrpvE7HiBx11Qi4aKaogd3Fk68U6CYKWZC6VucnlUfNBfk288CvDogLuD94Hr7//MXP539LFxaBGM8EW/ezsAzyPrPcky7BRSWhyUUCdcDY8wuTlmaoOe3P3dj7TVR7odP0prYhHtwHY1fAzMfjfQAajQn5hwZ+gcFmUd3lf0MXHfw+2/5VNYsMbmsapT+XglYzUTLoT8C0MhAbEa1BZz97jfIG3ZAbtpwpcrmxIrNmBZidgRoWQppMnPG9jBN8aLKmbvBzN5jqpsYdbG3tDlL28d7EFvUOhzn7iC3WmOdINnOuNDs=
