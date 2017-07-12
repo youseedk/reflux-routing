@@ -4,14 +4,15 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
+    "lint": "./node_modules/.bin/eslint lib; exit 0",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel lib -d dist",
     "build-dev": "watchify lib/dev.js -o test/bundle.js -t [ babelify ]",
     "build-x": "watchify lib/x.js -o test/x.js -t [ babelify ]"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/youseedk/reflux-routing.git"
+    "type": "git",
+    "url": "https://github.com/youseedk/reflux-routing.git"
   },
   "author": "Yousee",
   "license": "ISC",
@@ -26,6 +27,9 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babelify": "^7.3.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.7.0",
     "watchify": "^3.9.0"
   }
 }
