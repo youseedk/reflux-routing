@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint lib; exit 0",
+    "lint": "./node_modules/.bin/eslint lib",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel lib -d dist",
     "build-dev": "watchify lib/dev.js -o test/bundle.js -t [ babelify ]",
