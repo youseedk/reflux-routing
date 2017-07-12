@@ -7,7 +7,7 @@
     "lint": "./node_modules/.bin/eslint lib",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel lib -d dist",
-    "build-dev": "watchify lib/dev.js -o test/bundle.js -t [ babelify ]",
+    "build-dev": "watchify test/index.jsx -o test/bundle.js -t [ babelify ]",
     "build-x": "watchify lib/x.js -o test/x.js -t [ babelify ]"
   },
   "repository": {
@@ -30,6 +30,7 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.7.0",
+    "react-dom": "^15.6.1",
     "watchify": "^3.9.0"
   }
 }
