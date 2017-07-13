@@ -7,7 +7,7 @@
     "lint": "./node_modules/.bin/eslint lib",
     "lint-fix": "./node_modules/.bin/eslint lib --fix",
     "test": "mocha tests/*.js --compilers js:babel-core/register",
-    "build": "babel lib -d dist",
+    "build": "./node_modules/.bin/babel lib -d dist",
     "prepublish": "./node_modules/.bin/babel lib -d dist",
     "build-dev": "watchify test/index.jsx -o test/bundle.js -t [ babelify ]",
     "build-tabs": "watchify test/tabs.jsx -o test/tabs.bundle.js -t [ babelify ]"
