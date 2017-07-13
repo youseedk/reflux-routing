@@ -3,29 +3,57 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Routing, RoutingStore } from '../lib/main';
 
-Routing.define('PRODUCT', '/customer/:customer_id/products/:p_id/');
-Routing.define('CUSTOMER', '/customer/:customer_id/');
+Routing.define('PRODUCT', '/products/:p_id/:component', {component: { defaultValue: 'MyDefaultComponent' }});
 
-class TestComponent extends Reflux.Component {
+Routing.define('CUSTOMER', '/customer/:customer_id');
+Routing.define('CUSTOMER', '/customer/:customer_id/profile/:profile_id');
+
+class ProductComponent extends Reflux.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      PRODUCT: {},
+    };
     this.stores = [RoutingStore];
+    this.storeKeys = ['PRODUCT'];
   }
 
   render() {
-    console.log("STATE", this.state);
+    console.log("Product state", this.state);
     return (
       <div>
-        <a href="#!/customer/99/products/42/">Product</a><br/>
-        <a href="#!/customer/49">Customer</a> <br/>
-        <a href="#Else">Else</a><br/>
-        <a href="#!/customer/99/products/43/">Product 43</a><br/>
-        <a href="#Other">Other</a><br/>
+        <h1>Product</h1>
+        <h2>ID: {this.state.PRODUCT.p_id}{this.state.PRODUCT.component}</h2>
+        <a href="#!/products/99">Product</a><br/>
+        <a href="#!/products/42/details">Details</a><br/>
       </div>
     );
   }
 }
 
 
-ReactDOM.render(React.createElement(TestComponent), document.getElementById('root'));
+class CustomerComponent extends Reflux.Component {
+
+  constructor(props) {
+    super(props);
+    this.stores = [RoutingStore];
+    this.storeKeys = ['CUSTOMER'];
+  }
+
+  render() {
+    console.log("Customer state", this.state);
+    return (
+      <div>
+        <h1>Customer</h1>
+        <a href="#!/customer/99">Customer</a><br/>
+        <a href="#!/customer/98/profile">Profile</a><br/>
+      </div>
+    );
+  }
+}
+
+
+ReactDOM.render(React.createElement(ProductComponent), document.getElementById('product'));
+
+ReactDOM.render(React.createElement(CustomerComponent), document.getElementById('customer'));

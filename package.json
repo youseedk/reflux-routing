@@ -5,7 +5,8 @@
   "main": "dist/main.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint lib",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint-fix": "./node_modules/.bin/eslint lib --fix",
+    "test": "mocha tests/*.js --compilers js:babel-core/register",
     "build": "babel lib -d dist",
     "build-dev": "watchify test/index.jsx -o test/bundle.js -t [ babelify ]",
     "build-x": "watchify lib/x.js -o test/x.js -t [ babelify ]"
@@ -30,6 +31,7 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.7.0",
+    "mocha": "^3.4.2",
     "react-dom": "^15.6.1",
     "watchify": "^3.9.0"
   }
