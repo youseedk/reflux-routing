@@ -65,6 +65,12 @@ describe('Parser', function() {
       assert(route.matches('#!/test/999/888')); //Full match
     });
 
+    it('Should not match urls that are too long', function() {
+      var route = RouteParser.parseRoute('testRoute', '/test/x');
+
+      assert(!route.matches('#!/test/x/y')); //Hash has extra token
+    });
+
     it('Should not match partial routes with required field', function() {
       var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {
         param2: { required: true }
@@ -78,6 +84,14 @@ describe('Parser', function() {
       var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
 
       assert(!route.matches('#!/not_test/aaa/bbb'));
+    });
+
+    it('Should resolve an emty hash to default routes', function() {
+      var route = RouteParser.parseRoute('testRoute', ':param1', { param1: { defaultValue: 'TestDefault' } });
+
+      assert(route.matches(''));
+      assert.deepEqual(route.state(''), { param1: 'TestDefault' });
+
     });
   });
 });
