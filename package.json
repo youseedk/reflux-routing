@@ -3,6 +3,9 @@
   "version": "0.1.5",
   "description": "",
   "main": "dist/main.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "lint": "./node_modules/.bin/eslint lib",
     "lint-fix": "./node_modules/.bin/eslint lib --fix",
