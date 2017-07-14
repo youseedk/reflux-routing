@@ -1,10 +1,8 @@
-# New reflux router
+# New reflux router [![Build Status](https://travis-ci.org/youseedk/reflux-routing.svg?branch=master)](https://travis-ci.org/youseedk/reflux-routing)
 This router is aming to solve two problems that were not otherwise addressed by other routers:
 
 1. Using RefluxJs to handle all application state and changes
 2. Allow multiple independent components in a page that can all update the URL hash without overwriting echothers state
-
-[![Build Status](https://travis-ci.org/youseedk/reflux-routing.svg?branch=master)](https://travis-ci.org/youseedk/reflux-routing)
 
 ## Defining routes
 
