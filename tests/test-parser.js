@@ -1,35 +1,10 @@
+global.location = {hash: ''};
+
 var assert = require('assert');
 var RouteParser = require('../lib/route-parser').default;
 
 describe('Parser', function() {
-  describe('route-parser', function() {
-
-    it('Should store the key', function() {
-      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
-      assert.equal(route.key, 'testRoute');
-    });
-
-    it('Should extract parameters', function() {
-      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
-      assert.deepEqual(route.params.map(r => r.name), ['param1', 'param2']);
-    });
-
-    it('Should allow optional trailing slash', function() {
-      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
-
-      assert(route.matches('#!/test/aaa/bbb/')); //With slash
-      assert(route.matches('#!/test/999/888')); //Without slash
-    });
-
-    it('Should allow optional prefixed slash', function() {
-      var route_no_slash = RouteParser.parseRoute('testRoute_slash', '/test/:param1/:param2', {});
-      var route_slash = RouteParser.parseRoute('testRoute_no_slash', 'test/:param1/:param2', {});
-
-      assert(route_no_slash.matches('#!/test/aaa/bbb/'));
-      assert(route_slash.matches('#!test/aaa/bbb/'));
-
-    });
-
+  describe('state', function() {
     it('Should extract state from a url', function() {
       var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
       assert.deepEqual(
@@ -54,6 +29,32 @@ describe('Parser', function() {
           param2: 'MyDefault'
         }
       );
+    });
+
+    it('Should not use default state if state is set explicitly', function() {
+      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {
+        param2: {
+          defaultValue: 'MyDefault'
+        }
+      });
+      assert.deepEqual(
+        route.state('#!/test/999/notDefault'),
+        {
+          param1: 999,
+          param2: 'notDefault'
+        }
+      );
+    });
+  });
+
+  describe('matcher', function() {
+    it('Should allow optional prefixed slash', function() {
+      var route_no_slash = RouteParser.parseRoute('testRoute_slash', '/test/:param1/:param2', {});
+      var route_slash = RouteParser.parseRoute('testRoute_no_slash', 'test/:param1/:param2', {});
+
+      assert(route_no_slash.matches('#!/test/aaa/bbb/'));
+      assert(route_slash.matches('#!test/aaa/bbb/'));
+
     });
 
     it('Should match partial routes without required fields', function() {
@@ -93,5 +94,26 @@ describe('Parser', function() {
       assert.deepEqual(route.state(''), { param1: 'TestDefault' });
 
     });
+  });
+
+  describe('route', function() {
+
+    it('Should store the key', function() {
+      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
+      assert.equal(route.key, 'testRoute');
+    });
+
+    it('Should extract parameters', function() {
+      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
+      assert.deepEqual(route.params.map(r => r.name), ['param1', 'param2']);
+    });
+
+    it('Should allow optional trailing slash', function() {
+      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
+
+      assert(route.matches('#!/test/aaa/bbb/')); //With slash
+      assert(route.matches('#!/test/999/888')); //Without slash
+    });
+
   });
 });

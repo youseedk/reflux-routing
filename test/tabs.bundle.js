@@ -10,21 +10,24 @@ var _routingStore = require('./routing-store');
 
 var _routingStore2 = _interopRequireDefault(_routingStore);
 
+var _routingActions = require('./routing-actions');
+
+var _routingActions2 = _interopRequireDefault(_routingActions);
+
 var _router = require('./router');
 
 var _router2 = _interopRequireDefault(_router);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_router2.default.updateRoutes(location.hash);
 window.addEventListener('hashchange', function () {
-  _router2.default.updateRoutes(location.hash);
+  _routingActions2.default.hashUpdated(location.hash);
 }, false);
 
 exports.Routing = _router2.default;
 exports.RoutingStore = _routingStore2.default;
 
-},{"./router":3,"./routing-store":5}],2:[function(require,module,exports){
+},{"./router":3,"./routing-actions":4,"./routing-store":5}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37,28 +40,11 @@ var _utils2 = _interopRequireDefault(_utils);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// const escapeRegExp = str => str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-
-function tokenize(input) {
-  var tokens = input.replace(/^\/?/, '').replace(/\/?$/, '').split('/');
-
-  // If the input is an empty string, the first token is an empty string,
-  // when really this means that we should not have any tokens
-  if (tokens.length === 1 && tokens[0] === '') return [];
-
-  return tokens;
-}
-
-function findParam(token, params) {
-  return params.find(function (p) {
-    return p.name === token.substring(1);
-  });
-}
-
 function getParamsFromRoute(route, options) {
   var rx = /:([^/]+)/gi;
   var match = void 0;
   var params = [];
+
   while (match = rx.exec(route)) {
     // eslint-disable-line no-cond-assign
     var param = match[1];
@@ -73,29 +59,13 @@ function getParamsFromRoute(route, options) {
   return params;
 }
 
-function parseRoute(key, route, options) {
-  var definedRoute = {
-    key: key,
-    params: getParamsFromRoute(route, options),
-    matches: null,
-    route: route,
-    options: options
-  };
-
-  definedRoute.matches = function (hash) {
-    // Test if a given url matches the route
-
-    var routeTokens = tokenize(route);
-
-    var hashTokens = tokenize(hash.replace(/^#!/, ''));
-
-    //If the hash i longer than the route, it's not a match
-    if (hashTokens.length > routeTokens.length) return false;
-
-    console.log('Match', routeTokens, hashTokens);
+function buildMatcher(route, params) {
+  return function (hash) {
+    var routeTokens = _utils2.default.tokenize(route);
+    var hashTokens = _utils2.default.tokenize(hash.replace(/^#!/, ''));
 
     var isMatch = !routeTokens.some(function (token, i) {
-      if (token[0] === ':' && !findParam(token, definedRoute.params).required) {
+      if (token[0] === ':' && !_utils2.default.findParam(token, params).required) {
         return false;
       }
 
@@ -103,35 +73,49 @@ function parseRoute(key, route, options) {
         return false;
       }
 
-      console.log('Match Failed');
-
       return true;
     });
-    console.log('IsMatch', isMatch);
+
+    // If the hash i longer than the route, it's not a match
+    if (hashTokens.length > routeTokens.length) return false;
+
     return isMatch;
   };
+}
 
-  definedRoute.state = function (hash) {
-
-    var routeTokens = tokenize(route);
-    var hashTokens = tokenize(hash.replace(/^#!/, '')).filter(function (token, i) {
+function buildState(route, params) {
+  return function (hash) {
+    var routeTokens = _utils2.default.tokenize(route);
+    var hashTokens = _utils2.default.tokenize(hash.replace(/^#!/, '')).filter(function (token, i) {
       return routeTokens.length > i && routeTokens[i][0] === ':';
     });
 
     var match = routeTokens.filter(function (token) {
       return token[0] === ':';
     }).map(function (token, i) {
-      console.log("Got token", token, findParam(token, definedRoute.params), hashTokens);
-      var result = hashTokens.length > i ? hashTokens[i] : findParam(token, definedRoute.params).defaultValue;
+      var result = hashTokens.length > i ? hashTokens[i] : _utils2.default.findParam(token, params).defaultValue;
       return result;
     });
 
-    return _utils2.default.zipObject(definedRoute.params.map(function (p) {
+    return _utils2.default.zipObject(params.map(function (p) {
       return p.name;
     }), match);
   };
+}
 
-  return definedRoute;
+function parseRoute(key, route, options) {
+  var params = getParamsFromRoute(route, options);
+  var matches = buildMatcher(route, params);
+  var state = buildState(route, params);
+
+  return {
+    key: key,
+    params: params,
+    route: route,
+    options: options,
+    matches: matches,
+    state: state
+  };
 }
 
 exports.default = {
@@ -145,6 +129,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _reflux = require('reflux');
+
+var _reflux2 = _interopRequireDefault(_reflux);
+
 var _routeParser = require('./route-parser');
 
 var _routeParser2 = _interopRequireDefault(_routeParser);
@@ -153,54 +141,48 @@ var _routingActions = require('./routing-actions');
 
 var _routingActions2 = _interopRequireDefault(_routingActions);
 
+var _routingStore = require('./routing-store');
+
+var _routingStore2 = _interopRequireDefault(_routingStore);
+
+var _utils = require('./utils');
+
+var _utils2 = _interopRequireDefault(_utils);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var routes = {};
-
-function matched(url) {
-  return Object.keys(routes).filter(function (route) {
-    return routes[route].matches(url);
-  }).map(function (route) {
-    return routes[route];
-  });
-}
-
-function state(routeKey, hash) {
-  return routes[routeKey].state(hash);
-}
-
-function updateRoutes(hash) {
-  var matchedRoutes = matched(hash);
-
-  matchedRoutes.forEach(function (route) {
-    _routingActions2.default.routeUpdated({
-      key: route.key,
-      state: state(route.key, hash)
-    });
-  });
-}
+var store = _reflux2.default.initStore(_routingStore2.default);
 
 function define(key, route, options) {
-  if (routes[key]) {
-    console.warn('Overriding an existing route with key ', key); // eslint-disable-line no-console
+  _routingActions2.default.routeDefined(key, _routeParser2.default.parseRoute(key, route, options || {}));
+}
+
+function link(key, state) {
+  var route = store.state.routes[key];
+
+  if (route == null) {
+    console.warn('Could not create link. Route ' + key + ' not found'); // eslint-disable-line no-console
+    return '';
   }
 
-  routes[key] = _routeParser2.default.parseRoute(key, route, options || {});
-
-  if (routes[key].matches(location.hash)) {
-    //If the added route is already in the url, make sure to signal an update
-    updateRoutes(location.hash);
+  function resolveToken(token) {
+    if (token[0] === ':') {
+      var param = _utils2.default.findParam(token, route.params);
+      var stateValue = state[param.name] || param.defaultValue;
+      return stateValue;
+    }
+    return token;
   }
+
+  return '#!/' + _utils2.default.tokenize(route.route).map(resolveToken).join('/');
 }
 
 exports.default = {
   define: define,
-  matched: matched,
-  state: state,
-  updateRoutes: updateRoutes
+  link: link
 };
 
-},{"./route-parser":2,"./routing-actions":4}],4:[function(require,module,exports){
+},{"./route-parser":2,"./routing-actions":4,"./routing-store":5,"./utils":6,"reflux":208}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -214,7 +196,9 @@ var _refluxCore2 = _interopRequireDefault(_refluxCore);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = _refluxCore2.default.createActions({
-  routeUpdated: { sync: false }
+  hashUpdated: {},
+  routeUpdated: {},
+  routeDefined: {}
 });
 
 },{"reflux-core":199}],5:[function(require,module,exports){
@@ -251,16 +235,56 @@ var Store = function (_Reflux$Store) {
     var _this = _possibleConstructorReturn(this, (Store.__proto__ || Object.getPrototypeOf(Store)).call(this));
 
     _this.listenables = [_routingActions2.default];
+    _this.state = {
+      hash: '',
+      routes: {}
+    };
+
+    _this.setStateFromHash(location.hash);
     return _this;
   }
 
   _createClass(Store, [{
-    key: 'onRouteUpdated',
-    value: function onRouteUpdated(obj) {
-      var newRouteState = {};
-      newRouteState[obj.key] = obj.state;
+    key: 'onHashUpdated',
+    value: function onHashUpdated(newHash) {
+      this.setStateFromHash(newHash);
+    }
+  }, {
+    key: 'setStateFromHash',
+    value: function setStateFromHash(newHash) {
+      var matchedRoutes = this.matched(newHash);
+      var newRouteState = { hash: newHash };
+
+      matchedRoutes.forEach(function (route) {
+        newRouteState[route.key] = route.state(newHash);
+      });
 
       this.setState(newRouteState);
+    }
+  }, {
+    key: 'onRouteDefined',
+    value: function onRouteDefined(key, route) {
+      var allRoutes = this.state.routes || {};
+      allRoutes[key] = route;
+
+      var newState = {
+        routes: allRoutes
+      };
+      newState[key] = route.state(this.state.hash);
+
+      this.setState(newState);
+    }
+  }, {
+    key: 'matched',
+    value: function matched(url) {
+      var _this2 = this;
+
+      var matchedRoutes = Object.keys(this.state.routes).filter(function (route) {
+        return _this2.state.routes[route].matches(url);
+      }).map(function (route) {
+        return _this2.state.routes[route];
+      });
+      return matchedRoutes;
     }
   }]);
 
@@ -285,6 +309,21 @@ module.exports = {
     });
 
     return result;
+  },
+  tokenize: function tokenize(input) {
+    var tokens = input.replace(/^\/?/, '').replace(/\/?$/, '').split('/');
+
+    // If the input is an empty string, the first token is an empty string,
+    // when really this means that we should not have any tokens
+    if (tokens.length === 1 && tokens[0] === '') {
+      return [];
+    }
+    return tokens;
+  },
+  findParam: function findParam(token, params) {
+    return params.find(function (p) {
+      return p.name === token.substring(1);
+    });
   }
 };
 
@@ -23468,6 +23507,140 @@ module.exports = function(listenables){
 },{"reflux-core/lib/ListenerMethods":193}],211:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CustomerComponent = exports.ProductComponent = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reflux = require('reflux');
+
+var _reflux2 = _interopRequireDefault(_reflux);
+
+var _main = require('../lib/main');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+_main.Routing.define('PRODUCT', '/products/:p_id/:component', { component: { defaultValue: 'MyDefaultComponent' } });
+
+_main.Routing.define('CUSTOMER', '/customer/:customer_id');
+_main.Routing.define('CUSTOMER', '/customer/:customer_id/profile/:profile_id');
+
+var ProductComponent = function (_Reflux$Component) {
+  _inherits(ProductComponent, _Reflux$Component);
+
+  function ProductComponent(props) {
+    _classCallCheck(this, ProductComponent);
+
+    var _this = _possibleConstructorReturn(this, (ProductComponent.__proto__ || Object.getPrototypeOf(ProductComponent)).call(this, props));
+
+    _this.state = {
+      PRODUCT: {}
+    };
+    _this.stores = [_main.RoutingStore];
+    _this.storeKeys = ['PRODUCT'];
+    return _this;
+  }
+
+  _createClass(ProductComponent, [{
+    key: 'render',
+    value: function render() {
+      console.log("Product state", this.state);
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'h1',
+          null,
+          'Product22'
+        ),
+        _react2.default.createElement(
+          'h2',
+          null,
+          'ID: ',
+          this.state.PRODUCT.p_id,
+          this.state.PRODUCT.component
+        ),
+        _react2.default.createElement(
+          'a',
+          { href: _main.Routing.link('PRODUCT', { p_id: 99 }) },
+          'Product'
+        ),
+        _react2.default.createElement('br', null),
+        _react2.default.createElement(
+          'a',
+          { href: _main.Routing.link('PRODUCT', { p_id: 42, component: 'details' }) },
+          'Details'
+        ),
+        _react2.default.createElement('br', null)
+      );
+    }
+  }]);
+
+  return ProductComponent;
+}(_reflux2.default.Component);
+
+var CustomerComponent = function (_Reflux$Component2) {
+  _inherits(CustomerComponent, _Reflux$Component2);
+
+  function CustomerComponent(props) {
+    _classCallCheck(this, CustomerComponent);
+
+    var _this2 = _possibleConstructorReturn(this, (CustomerComponent.__proto__ || Object.getPrototypeOf(CustomerComponent)).call(this, props));
+
+    _this2.stores = [_main.RoutingStore];
+    _this2.storeKeys = ['CUSTOMER'];
+    return _this2;
+  }
+
+  _createClass(CustomerComponent, [{
+    key: 'render',
+    value: function render() {
+      console.log("Customer state", this.state);
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'h1',
+          null,
+          'Customer'
+        ),
+        _react2.default.createElement(
+          'a',
+          { href: _main.Routing.link('PRODUCT', { customer_id: 99 }) },
+          'Customer'
+        ),
+        _react2.default.createElement('br', null),
+        _react2.default.createElement(
+          'a',
+          { href: _main.Routing.link('PRODUCT', { customer_id: 98, profile_id: 'xx' }) },
+          'Profile'
+        ),
+        _react2.default.createElement('br', null)
+      );
+    }
+  }]);
+
+  return CustomerComponent;
+}(_reflux2.default.Component);
+
+exports.ProductComponent = ProductComponent;
+exports.CustomerComponent = CustomerComponent;
+
+},{"../lib/main":1,"react":190,"reflux":208}],212:[function(require,module,exports){
+'use strict';
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _reflux = require('reflux');
@@ -23483,6 +23656,8 @@ var _reactDom = require('react-dom');
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _main = require('../lib/main');
+
+var _components = require('./components.jsx');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23502,9 +23677,6 @@ var TabBar = function (_Reflux$Component) {
 
     var _this = _possibleConstructorReturn(this, (TabBar.__proto__ || Object.getPrototypeOf(TabBar)).call(this, props));
 
-    _this.state = {
-      Tabs: {}
-    };
     _this.stores = [_main.RoutingStore];
     _this.storeKeys = ['Tabs'];
     return _this;
@@ -23513,7 +23685,6 @@ var TabBar = function (_Reflux$Component) {
   _createClass(TabBar, [{
     key: 'render',
     value: function render() {
-      console.log(this.state.Tabs);
       return _react2.default.createElement(
         'ul',
         null,
@@ -23522,7 +23693,7 @@ var TabBar = function (_Reflux$Component) {
           null,
           _react2.default.createElement(
             'a',
-            { href: '#!/Tab1' },
+            { href: _main.Routing.link('Tabs', { selected_tab: 'Tab1' }) },
             'Tab 1'
           )
         ),
@@ -23531,7 +23702,7 @@ var TabBar = function (_Reflux$Component) {
           null,
           _react2.default.createElement(
             'a',
-            { href: '#!/Tab2' },
+            { href: _main.Routing.link('Tabs', { selected_tab: 'Tab2' }) },
             'Tab 2'
           )
         ),
@@ -23540,7 +23711,7 @@ var TabBar = function (_Reflux$Component) {
           null,
           _react2.default.createElement(
             'a',
-            { href: '#!/Tab3' },
+            { href: _main.Routing.link('Tabs', { selected_tab: 'Tab3' }) },
             'Tab 3'
           )
         )
@@ -23560,9 +23731,6 @@ var Tab = function (_Reflux$Component2) {
     var _this2 = _possibleConstructorReturn(this, (Tab.__proto__ || Object.getPrototypeOf(Tab)).call(this, props));
 
     _this2.stores = [_main.RoutingStore];
-    _this2.state = {
-      Tabs: {}
-    };
     _this2.storeKeys = ['Tabs'];
     return _this2;
   }
@@ -23570,6 +23738,7 @@ var Tab = function (_Reflux$Component2) {
   _createClass(Tab, [{
     key: 'render',
     value: function render() {
+      console.log("Render!", this.state);
       if (this.state.Tabs.selected_tab !== this.props.tabId) return null;
 
       return _react2.default.createElement(
@@ -23584,9 +23753,11 @@ var Tab = function (_Reflux$Component2) {
   return Tab;
 }(_reflux2.default.Component);
 
+_reactDom2.default.render(_react2.default.createElement(_components.ProductComponent), document.getElementById('product'));
+_reactDom2.default.render(_react2.default.createElement(_components.CustomerComponent), document.getElementById('customer'));
 _reactDom2.default.render(_react2.default.createElement(TabBar), document.getElementById('tabbar'));
 _reactDom2.default.render(_react2.default.createElement(Tab, { tabId: 'Tab1' }), document.getElementById('tab1'));
 _reactDom2.default.render(_react2.default.createElement(Tab, { tabId: 'Tab2' }), document.getElementById('tab2'));
 _reactDom2.default.render(_react2.default.createElement(Tab, { tabId: 'Tab3' }), document.getElementById('tab3'));
 
-},{"../lib/main":1,"react":190,"react-dom":38,"reflux":208}]},{},[211]);
+},{"../lib/main":1,"./components.jsx":211,"react":190,"react-dom":38,"reflux":208}]},{},[212]);
