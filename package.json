@@ -12,8 +12,8 @@
     "test": "mocha tests/*.js --compilers js:babel-core/register",
     "build": "\"./node_modules/.bin/babel\" lib -d dist",
     "prepublish": "\"./node_modules/.bin/babel\" lib -d dist",
-    "build-dev": "watchify test/index.jsx -o test/bundle.js -t [ babelify ]",
-    "build-tabs": "watchify test/tabs.jsx -o test/tabs.bundle.js -t [ babelify ]"
+    "build-dev": "watchify examples/index.jsx -o examples/bundle.js -t [ babelify ]",
+    "build-tabs": "watchify examples/tabs.jsx -o examples/tabs.bundle.js -t [ babelify ]"
   },
   "repository": {
     "type": "git",
