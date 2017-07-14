@@ -11,9 +11,6 @@ class ProductComponent extends Reflux.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      PRODUCT: {},
-    };
     this.stores = [RoutingStore];
     this.storeKeys = ['PRODUCT'];
   }
@@ -22,10 +19,10 @@ class ProductComponent extends Reflux.Component {
     console.log("Product state", this.state);
     return (
       <div>
-        <h1>Product</h1>
+        <h1>Product22</h1>
         <h2>ID: {this.state.PRODUCT.p_id}{this.state.PRODUCT.component}</h2>
-        <a href="#!/products/99">Product</a><br/>
-        <a href="#!/products/42/details">Details</a><br/>
+        <a href={Routing.link('PRODUCT', { p_id: 99 } )}>Product</a><br/>
+        <a href={Routing.link('PRODUCT', { p_id: 42, component: 'details' } )}>Details</a><br/>
       </div>
     );
   }
@@ -45,8 +42,8 @@ class CustomerComponent extends Reflux.Component {
     return (
       <div>
         <h1>Customer</h1>
-        <a href="#!/customer/99">Customer</a><br/>
-        <a href="#!/customer/98/profile">Profile</a><br/>
+        <a href={Routing.link('PRODUCT', { customer_id: 99 } )}>Customer</a><br/>
+        <a href={Routing.link('PRODUCT', { customer_id: 98, profile_id: 'xx' } )}>Profile</a><br/>
       </div>
     );
   }

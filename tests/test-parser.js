@@ -30,6 +30,21 @@ describe('Parser', function() {
         }
       );
     });
+
+    it('Should not use default state if state is set explicitly', function() {
+      var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {
+        param2: {
+          defaultValue: 'MyDefault'
+        }
+      });
+      assert.deepEqual(
+        route.state('#!/test/999/notDefault'),
+        {
+          param1: 999,
+          param2: 'notDefault'
+        }
+      );
+    });
   });
 
   describe('matcher', function() {

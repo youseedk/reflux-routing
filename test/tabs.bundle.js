@@ -20,8 +20,6 @@ var _router2 = _interopRequireDefault(_router);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// RoutingActions.hashUpdated(location.hash);
-
 window.addEventListener('hashchange', function () {
   _routingActions2.default.hashUpdated(location.hash);
 }, false);
@@ -163,7 +161,7 @@ function link(key, state) {
   var route = store.state.routes[key];
 
   if (route == null) {
-    console.warn('Could not create link. Route ' + key + ' not found');
+    console.warn('Could not create link. Route ' + key + ' not found'); // eslint-disable-line no-console
     return '';
   }
 
@@ -199,7 +197,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = _refluxCore2.default.createActions({
   hashUpdated: {},
-  routeUpdated: { sync: false },
+  routeUpdated: {},
   routeDefined: {}
 });
 
@@ -241,6 +239,7 @@ var Store = function (_Reflux$Store) {
       hash: '',
       routes: {}
     };
+
     _this.setStateFromHash(location.hash);
     return _this;
   }
@@ -23564,7 +23563,7 @@ var ProductComponent = function (_Reflux$Component) {
         _react2.default.createElement(
           'h1',
           null,
-          'Product'
+          'Product22'
         ),
         _react2.default.createElement(
           'h2',
@@ -23575,13 +23574,13 @@ var ProductComponent = function (_Reflux$Component) {
         ),
         _react2.default.createElement(
           'a',
-          { href: '#!/products/99' },
+          { href: _main.Routing.link('PRODUCT', { p_id: 99 }) },
           'Product'
         ),
         _react2.default.createElement('br', null),
         _react2.default.createElement(
           'a',
-          { href: '#!/products/42/details' },
+          { href: _main.Routing.link('PRODUCT', { p_id: 42, component: 'details' }) },
           'Details'
         ),
         _react2.default.createElement('br', null)
@@ -23619,13 +23618,13 @@ var CustomerComponent = function (_Reflux$Component2) {
         ),
         _react2.default.createElement(
           'a',
-          { href: '#!/customer/99' },
+          { href: _main.Routing.link('PRODUCT', { customer_id: 99 }) },
           'Customer'
         ),
         _react2.default.createElement('br', null),
         _react2.default.createElement(
           'a',
-          { href: '#!/customer/98/profile' },
+          { href: _main.Routing.link('PRODUCT', { customer_id: 98, profile_id: 'xx' }) },
           'Profile'
         ),
         _react2.default.createElement('br', null)
