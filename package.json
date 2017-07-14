@@ -20,7 +20,7 @@
     "url": "https://github.com/youseedk/reflux-routing.git"
   },
   "author": "Yousee",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "react": "^15.6.1",
     "reflux": "^6.4.1",
