@@ -4,7 +4,7 @@ import { Routing, RoutingStore } from '../lib/main';
 
 Routing.define('PRODUCT', '/products/:p_id/:component', {component: { defaultValue: 'MyDefaultComponent' }});
 
-Routing.define('CUSTOMER', '/customer/:customer_id');
+// Routing.define('CUSTOMER', '/customer/:customer_id');
 Routing.define('CUSTOMER', '/customer/:customer_id/profile/:profile_id');
 
 class ProductComponent extends Reflux.Component {
@@ -42,8 +42,8 @@ class CustomerComponent extends Reflux.Component {
     return (
       <div>
         <h1>Customer</h1>
-        <a href={Routing.link('PRODUCT', { customer_id: 99 } )}>Customer</a><br/>
-        <a href={Routing.link('PRODUCT', { customer_id: 98, profile_id: 'xx' } )}>Profile</a><br/>
+        <a href={Routing.link('CUSTOMER', { customer_id: 99 } )}>Customer</a><br/>
+        <a href={Routing.link('CUSTOMER', { customer_id: '0a3f50a3-c214-32b8-e044-0003ba298018', profile_id: 'xx' } )}>Profile</a><br/>
       </div>
     );
   }
