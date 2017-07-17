@@ -13,7 +13,7 @@ describe('Router', function() {
       p2: 'Y'
     });
 
-    assert.equal(url, '#!/X/xxx/Y');
+    assert.equal(url, '#!X/xxx/Y');
   });
 
   it('Should resolve links using default values', function () {
@@ -25,7 +25,7 @@ describe('Router', function() {
       p2: 'Y'
     });
 
-    assert.equal(url, '#!/default/xxx/Y');
+    assert.equal(url, '#!default/xxx/Y');
   });
 
   it('Should override default values if an explicit state is specified', function () {
@@ -38,7 +38,7 @@ describe('Router', function() {
       p2: 'Y'
     });
 
-    assert.equal(url, '#!/notDefault/xxx/Y');
+    assert.equal(url, '#!notDefault/xxx/Y');
   });
 
   it('Should handle multiple routes', function () {
@@ -51,6 +51,6 @@ describe('Router', function() {
 
     const url = Routing.link('R2', { p1: 'notDefault2' });
 
-    assert.equal(url , '#!/notDefault1,/notDefault2');
+    assert.equal(url , '#!notDefault1,notDefault2');
   });
 });
