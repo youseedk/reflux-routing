@@ -6,6 +6,10 @@ var RoutingStore = require('../lib/routing-store').default;
 var RoutingActions = require('../lib/routing-actions').default;
 
 describe('Router', function() {
+  beforeEach(function() {
+    Routing.clearState();
+  });
+
   it('Should resolve links', function() {
     Routing.define('Test', '/:p1/xxx/:p2', {});
     const url = Routing.link('Test', {
@@ -44,13 +48,13 @@ describe('Router', function() {
   it('Should handle multiple routes', function () {
     Routing.clearState();
 
-    Routing.define('R1', ':p1', { p1: {defaultValue: 'default1'} });
-    Routing.define('R2', ':p1', { p1: {defaultValue: 'default2'} });
+    Routing.define('R1', 'R1/:p1', { p1: {defaultValue: 'default1'} });
+    Routing.define('R2', 'R2/:p2', { p2: {defaultValue: 'default2'} });
 
     RoutingActions.hashUpdated(Routing.link('R1', { p1: 'notDefault1' }));
 
-    const url = Routing.link('R2', { p1: 'notDefault2' });
+    const url = Routing.link('R2', { p2: 'notDefault2' });
 
-    assert.equal(url , '#!notDefault1,notDefault2');
+    assert.equal(url , '#!R1/notDefault1,R2/notDefault2');
   });
 });

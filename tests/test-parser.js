@@ -4,6 +4,7 @@ var assert = require('assert');
 var RouteParser = require('../lib/route-parser').default;
 
 describe('Parser', function() {
+
   describe('state', function() {
     it('Should extract state from a url', function() {
       var route = RouteParser.parseRoute('testRoute', '/test/:param1/:param2', {});
