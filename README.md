@@ -45,6 +45,23 @@ When making routed links, you should always construct them usink the link method
   }
 ...
 ```
+## Scripted navigation
+There is a shorthand for setting the location hash:
+```
+import { Routing } from 'reflux-routing';
+
+//Define some route
+Routing.define('MyComponentKey', '/some-resource/:resourceId');
+
+//Now navigate to that route (directly updating the URI)
+Routing.navigate('MyComponentKey', {resourceId: '999'});
+
+```
+This will trigger a hashUpdated action. This is just a shorthand for:
+```
+window.location.hash = Routing.link(key, state);
+```
+
 ## Setting options
 You can define a default value for all route parameters or specify that a value is required for the route to be matched:
 ```
