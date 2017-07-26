@@ -54,6 +54,42 @@ Routing.define('UsersKey', '/user/:userId/:component', {
 });
 ```
 
+## Routing actions
+The router exposes a number of actions you can listen to instead of binding to the store:
 
+### hashUpdated(newHash)
+This triggers everytime the hash is updated in the URL. Similar to listening on window.hashChange.
+When the page loads, the initial hash is loaded from the URL, but a hashUpdated action is NOT triggered (this may change).
 
+### routeUpdated(key, newState)
+This action is triggered everytime a route state changes. This is also triggered on page load if the initial hash is different from the default state.
+This action triggers for every route key.
+
+### routeDefined
+This action triggers whenever a new route is defined.
+
+## Using route actions to update stores
+```
+import { RoutingActions, Routing } from 'reflux-routing'
+
+Routing.define('Cutomer', 'customer/:cutomer_id');
+
+class Store extends Reflux.Store {
+  constructor() {
+    super();
+
+    this.listenables = [RoutingActions];
+
+    this.setStateFromHash(location.hash);
+  }
+
+  onRouteUpdated(key, newState) {
+    if (key === 'Customer') {
+      //Do some fetching based on customer state, i.e.:
+      //fetch('/api/customer/' + newState.Customer.customer_id)....
+      //  then(customer => this.setState({cusomer: customer}))
+    }
+  }
+}
+```
 
