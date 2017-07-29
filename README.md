@@ -110,3 +110,7 @@ class Store extends Reflux.Store {
 }
 ```
 
+## Note on Dependencies
+
+This package uses various es6 methods that might not be supported in all browsers, for example Array.find, in cases where you need that support for older browsers you should provide the proper polyfills to achieve it.
+
